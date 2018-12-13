@@ -269,6 +269,9 @@ int loopOverPP( struct mpsse_context *i2c, int nPoints, char *dataBuf ) {
 
     int imux=0;
     float *data = malloc(nPoints); 
+    
+    sprintf( dataBuf, "%d,", nPoints );
+
     for( ; imux<4; imux++ ) {
 
         int ich=0;
@@ -286,7 +289,6 @@ int loopOverPP( struct mpsse_context *i2c, int nPoints, char *dataBuf ) {
                 data[ipoint] = readADC( i2c );
                 ADCmean += data[ipoint];
             }
-
             ADCmean = ADCmean/nPoints;
 
             for( ipoint=0 ; ipoint<nPoints ; ipoint++ ) {
@@ -311,7 +313,13 @@ int loopOverPP( struct mpsse_context *i2c, int nPoints, char *dataBuf ) {
                 sprintf( dataBuf, "%s%s,", dataBuf, MUX3_LABLES[ich] );
             }
             printf( "MUX %d \t CH %d \t ADC_RD %f ( %f )\n", imux, ich, ADCmean, ADCrms ); 
-            sprintf( dataBuf, "%s%f,%f,", dataBuf, ADCmean, ADCrms );
+
+            ipoint=0;
+            for(; ipoint<nPoints ; ipoint++) {
+                data[ipoint];
+                sprintf( dataBuf, "%s%f,", dataBuf, data[ipoint] );
+            }
+
 
         }
     }
@@ -335,7 +343,7 @@ int main(int argc, char** argv) {
     char data = 0x00;
     int  ndata = 1; // numer of bites to read
     char addr = 0x00;
-    int port = 0; // port for external communication
+    int port = 1025; // port for external communication
 
 
     /* options */
@@ -448,7 +456,7 @@ int main(int argc, char** argv) {
         /* loop */
         if( loopFlag == 1 ) {
             printf("All voltages on Serenity (in Volt):\n");
-            char buffer[10000];
+            char buffer[1000000];
             loopOverPP( i2c, 10, buffer );
             
             if( transmitFlag==1 ) { 
@@ -478,9 +486,6 @@ int main(int argc, char** argv) {
                       (char *)&serv_addr.sin_addr.s_addr,
                       server->h_length);
                 serv_addr.sin_port = htons(portno);
-                
-
-
 
                 if ( connect( sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr) ) < 0) { 
                     error("ERROR connecting");
@@ -497,9 +502,7 @@ int main(int argc, char** argv) {
 
             return 0;
 
-        }
-
-    
+        }    
 
         Close(i2c);
         printf( "*** FTDI I2C CONNECTION CLOSE ***\n" );

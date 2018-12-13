@@ -4,6 +4,27 @@ from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 import thread
 import time
 import datetime
+import argparse
+
+
+class board :
+    def __init__( self, nPoints ) :
+        self.nPoints = int(nPoints)
+        self.data = []
+
+    def readData( self, data ) :
+        del data[0]
+        del data[-1]
+        dataPktLen = (self.nPoints+1)
+        voltages = len(data)/dataPktLen
+        for i in range(voltages) :
+            start = (i*dataPktLen)
+            stop  = start + dataPktLen
+            self.data.append( data[start:stop] )
+        print self.data
+
+    def getData(self) :
+        return self.data
 
 
 def handler( clientsocket, clientaddr, buf ):
@@ -11,30 +32,43 @@ def handler( clientsocket, clientaddr, buf ):
     print "Accepted connection from: ", clientaddr
     while True:
         rawData = clientsocket.recv( buf )
-       
+        rawData = rawData.replace(' ', '')
         if not rawData:
             break 
         else:
             data = rawData.split(',')
-            print rawData
-            for i, d in enumerate(data) :
-                #if( i%3 == 0 ) :
-                #    print '\n'
-                print d,
+            b = board( data[0] )
+            b.readData(data)
             #clientsocket.send("ECHO: " + data + '\n')
 
     clients.remove( clientsocket )
     clientsocket.close()
 
+
 def push():
     while True:
         for i in clients:
-            if i is not serversocket: # neposilat sam sobe
+            if i is not serversocket:
                 i.send("Current date and time: " + str(datetime.datetime.now()) + '\n')
         time.sleep(10) # [s]
 
-host = 'localhost'
-port = 26
+
+
+
+######################
+
+
+### option parsing ###
+parser = argparse.ArgumentParser(description='Serenity test-board server.')
+parser.add_argument('-p', '--port',
+                    type=int, default=1025,
+                    help='port to open')
+parser.add_argument('-l', '--host',
+                    default='localhost',
+                    help='port to open')
+args = parser.parse_args()
+port = args.port
+host = args.host
 addr = ( host, port )
 
 ### server socket ###
@@ -45,7 +79,7 @@ serversocket.listen( 10 )
 
 clients = [serversocket]
 
-buf = 10000
+buf = 1000000
 
 while True:
     try:
