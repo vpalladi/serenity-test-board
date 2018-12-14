@@ -7,28 +7,38 @@ import datetime
 import argparse
 
 
-class board :
-    def __init__( self, nPoints ) :
-        self.nPoints = int(nPoints)
+class cBoard :
+    
+
+    def __init__( self, nPoints=0 ) :
+        self.setNpoints( nPoints )
         self.data = []
 
-    def readData( self, data ) :
-        del data[0]
-        del data[-1]
+
+    def setNpoints( self, nPoints ) :
+        self.nPoints = int(nPoints)
+
+    def getNpoints( self ) :
+        return self.nPoints
+
+    def readData( self, dataTmp ) :
+        del dataTmp[0]
+        del dataTmp[-1]
         dataPktLen = (self.nPoints+1)
-        voltages = len(data)/dataPktLen
+        voltages = len(dataTmp)/dataPktLen
         for i in range(voltages) :
             start = (i*dataPktLen)
             stop  = start + dataPktLen
-            self.data.append( data[start:stop] )
-        print self.data
+            self.data.append( dataTmp[start:stop] )
 
-    def getData(self) :
+    def getData( self ) :
         return self.data
 
 
-def handler( clientsocket, clientaddr, buf ):
+
+def handler( clientsocket, clientaddr, buf, tests ):
     
+    board = cBoard()
     print "Accepted connection from: ", clientaddr
     while True:
         rawData = clientsocket.recv( buf )
@@ -37,13 +47,14 @@ def handler( clientsocket, clientaddr, buf ):
             break 
         else:
             data = rawData.split(',')
-            b = board( data[0] )
-            b.readData(data)
+            board.setNpoints( data[0] )
+            board.readData( data )
             #clientsocket.send("ECHO: " + data + '\n')
-
+    
     clients.remove( clientsocket )
     clientsocket.close()
-
+    
+    tests.append( board )
 
 def push():
     while True:
@@ -80,13 +91,16 @@ serversocket.listen( 10 )
 clients = [serversocket]
 
 buf = 1000000
-
+tests = [] 
+        
 while True:
     try:
         print "Server is listening for connections\n"
         clientsocket, clientaddr = serversocket.accept()
         clients.append( clientsocket )
-        thread.start_new_thread( handler, (clientsocket, clientaddr, buf) )
+        thread.start_new_thread( handler, (clientsocket, clientaddr, buf, tests) )
+        if(len(tests)>0) :
+            print 'what?',tests[-1].getData()
     except KeyboardInterrupt: # Ctrl+C # FIXME: vraci "raise error(EBADF, 'Bad file descriptor')"
         print "Closing server socket..."
         serversocket.close()
