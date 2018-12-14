@@ -110,6 +110,8 @@ class PlotWindow(tk.Toplevel):
             subfig.plot( (data[i] ) )
             subfig.set_title(title)
             subfig.set_ylabel('Voltage')
+
+        fig.subplots_adjust(hspace=0.5, wspace=0.4)
             
         canvas = FigureCanvasTkAgg(fig, frame)  # A tk.DrawingArea.
         canvas.draw()
@@ -124,6 +126,7 @@ class PlotWindow(tk.Toplevel):
         t = np.arange(0, 3, .01)
         fig.add_subplot(231).plot(t, 2 * np.sin(2 * np.pi * t))
         fig.add_subplot(233).plot(t, 4 * np.cos(2 * np.pi * t))
+        
         
         canvas = FigureCanvasTkAgg(fig, frame)  # A tk.DrawingArea.
         canvas.draw()
