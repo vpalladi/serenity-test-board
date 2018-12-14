@@ -1,10 +1,19 @@
+import matplotlib
+
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg, NavigationToolbar2Tk)
+# Implement the default Matplotlib key bindings.
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
+
+matplotlib.use('TkAgg')
+import numpy as np
+import matplotlib.pyplot as plt
+# from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+# from matplotlib.figure import Figure
 import tkinter as tk
 import tkinter.ttk as ttk
-import matplotlib as mpl
-import numpy as np
 import sys
-import matplotlib.backends.tkagg as tkagg
-from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 # from tkinter import *
 # from tkinter.ttk import *
@@ -62,6 +71,9 @@ class PlotWindow(tk.Toplevel):
         self.close_button = tk.Button(self, text="Close Plot Window", command=self.destroy)
         self.close_button.pack()
 
+        self.exit_button = tk.Button(self, text="Exit Application", command=master.quit)
+        self.exit_button.pack()
+
         self.notebook = ttk.Notebook(self)
         f1 = tk.Frame(self.notebook)   # first page, which would get widgets gridded into it
         f2 = tk.Frame(self.notebook)   # second page
@@ -69,58 +81,59 @@ class PlotWindow(tk.Toplevel):
         self.notebook.add(f2, text='Voltage 2')
         self.notebook.pack(fill=tk.BOTH, expand=True)
 
-        self.results_button = tk.Button(f1, text="Results", command=self.show_results)
-        self.results_button.pack()
+        # self.results_button = tk.Button(f1, text="Results", command=self.show_results)
+        # self.results_button.pack()
 
         # Create a canvas
-        w, h = 300, 200
-        canvas = tk.Canvas(f1, width=w, height=h)
-        canvas.pack()
+#        self.make_v1_figure(f1)
+        self.make_v2_figure(f2)
 
-        # Generate some example data
-        X = np.linspace(0, 2 * np.pi, 50)
-        Y = np.sin(X)
-
-        # Create the figure we desire to add to an existing canvas
-        fig = mpl.figure.Figure(figsize=(2, 1))
-        ax = fig.add_axes([0, 0, 1, 1])
-        ax.plot(X, Y)
+        data = [['V1', 3, 4], ['V2',3, 3.2, 2.8], ['NextReading', 2, 2.1, 0.7, 2.4], ['test1',3, 4, 5, 6, 7], ['test2',3, 4, 5, 6, 7, 8]]
         
-        # Keep this handle alive, or else figure will disappear
-        fig_x, fig_y = 100, 100
-        fig_photo = draw_figure(canvas, fig, loc=(fig_x, fig_y))
-        fig_w, fig_h = fig_photo.width(), fig_photo.height()
+        self.make_figure(f1, data)
 
         
-        # Add more elements to the canvas, potentially on top of the figure
-        canvas.create_line(200, 50, fig_x + fig_w / 2, fig_y + fig_h / 2)
-        canvas.create_text(200, 50, text="Zero-crossing", anchor="s")
-
     def show_results(self):
         print("Showing results")
 
+    def make_figure(self, frame, data):
+    
+        fig = Figure(figsize=(5, 4), dpi=100)
+        t = np.arange(0, 3, .01)
+        plt.tight_layout()
+        
+        for i in range(len(data)):
+#            print ( (data[i]) )
+            title = data[i][0]
+            data[i].pop(0)
+            subfig = fig.add_subplot(2,3,i+1)
+            subfig.plot( (data[i] ) )
+            subfig.set_title(title)
+            subfig.set_ylabel('Voltage')
+            
+        canvas = FigureCanvasTkAgg(fig, frame)  # A tk.DrawingArea.
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        
+        toolbar = NavigationToolbar2Tk(canvas, frame)
+        toolbar.update()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-    def draw_figure(canvas, figure, loc=(0, 0)):
-        """ Draw a matplotlib figure onto a Tk canvas
+    def make_v2_figure(self, frame):
+        fig = Figure(figsize=(5, 4), dpi=100)
+        t = np.arange(0, 3, .01)
+        fig.add_subplot(231).plot(t, 2 * np.sin(2 * np.pi * t))
+        fig.add_subplot(233).plot(t, 4 * np.cos(2 * np.pi * t))
         
-        loc: location of top-left corner of figure on canvas in pixels.
-        Inspired by matplotlib source: lib/matplotlib/backends/backend_tkagg.py
-        """
-        figure_canvas_agg = FigureCanvasAgg(figure)
-        figure_canvas_agg.draw()
-        figure_x, figure_y, figure_w, figure_h = figure.bbox.bounds
-        figure_w, figure_h = int(figure_w), int(figure_h)
-        photo = tk.PhotoImage(master=canvas, width=figure_w, height=figure_h)
+        canvas = FigureCanvasTkAgg(fig, frame)  # A tk.DrawingArea.
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         
-        # Position: convert from top-left anchor to center anchor
-        canvas.create_image(loc[0] + figure_w/2, loc[1] + figure_h/2, image=photo)
+        toolbar = NavigationToolbar2Tk(canvas, frame)
+        toolbar.update()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-        # Unfortunately, there's no accessor for the pointer to the native renderer
-        tkagg.blit(photo, figure_canvas_agg.get_renderer()._renderer, colormode=2)
-        
-        # Return a handle which contains a reference to the photo object
-        # which must be kept live or else the picture disappears
-        return photo
+
         
 root = tk.Tk()
 tb_gui = TestBoardGUI(root)
