@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
-import thread
+import threading as thread
+#import thread
 import time
 import datetime
 import argparse
@@ -39,6 +40,8 @@ class cBoard :
 def handler( clientsocket, clientaddr, buf, tests ):
     
     board = cBoard()
+    tests.append( board )
+
     print "Accepted connection from: ", clientaddr
     while True:
         rawData = clientsocket.recv( buf )
@@ -47,14 +50,16 @@ def handler( clientsocket, clientaddr, buf, tests ):
             break 
         else:
             data = rawData.split(',')
-            board.setNpoints( data[0] )
-            board.readData( data )
+            tests[-1].setNpoints( data[0] )
+            tests[-1].readData( data )
             #clientsocket.send("ECHO: " + data + '\n')
     
     clients.remove( clientsocket )
     clientsocket.close()
-    
-    tests.append( board )
+
+
+
+
 
 def push():
     while True:
@@ -98,10 +103,17 @@ while True:
         print "Server is listening for connections\n"
         clientsocket, clientaddr = serversocket.accept()
         clients.append( clientsocket )
-        thread.start_new_thread( handler, (clientsocket, clientaddr, buf, tests) )
+#        thread.start_new_thread( handler, (clientsocket, clientaddr, buf, tests) )
+        th = thread.Thread(target=handler, args=(clientsocket, clientaddr, buf, tests,)) 
+        th.start()
+        th.join()
+#        time.sleep(2) 
+
         if(len(tests)>0) :
             print 'what?',tests[-1].getData()
     except KeyboardInterrupt: # Ctrl+C # FIXME: vraci "raise error(EBADF, 'Bad file descriptor')"
         print "Closing server socket..."
         serversocket.close()
 
+while 1:
+    pass
