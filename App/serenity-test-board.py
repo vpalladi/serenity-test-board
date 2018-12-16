@@ -1,5 +1,5 @@
+#!/usr/local/bin/python3
 import matplotlib
-
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
 # Implement the default Matplotlib key bindings.
@@ -15,6 +15,17 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import sys
 
+from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
+import threading as thread
+#import thread
+import time
+import datetime
+import argparse
+
+
+#sys.path.insert(0, "../Sockets")
+import server as srv
+
 # from tkinter import *
 # from tkinter.ttk import *
 
@@ -25,28 +36,42 @@ class TestBoardGUI:
         master.geometry("400x300")
         
         self.frame = tk.Frame(master)
+#        self.frame.grid(row=0,sticky=tk.NSEW)
         self.frame.pack()
-        
+        # self.frame.grid_rowconfigure(1, weight=1)
+        # self.frame.grid_columnconfigure(1, weight=1)
+
         self.label = tk.Label(self.frame, text="Run Board Tests")
-        self.label.pack()
+        self.label.grid(row=0)
 
-        self.test_button = tk.Button(self.frame, text="Test", command=self.test)
-        self.test_button.pack()
+#        self.test_counter = 0
+        self.test_button = tk.Button(self.frame, text="Start Test", command=self.test)
+        self.test_button.grid(row=2) 
+        # self.stop_test_button = tk.Button(self.frame, text="Stop Test", command=self.stop_test)
+        # self.stop_test_button.grid(row=3) 
 
-        self.run_button = tk.Button(self.frame, text="Run", command=self.run)
-        self.run_button.pack()
+        self.port_number = tk.IntVar() 
+        self.port_label = tk.Label(self.frame, text="Port").grid(row=2,column=2)
+        self.port_entry = tk.Entry(self.frame, textvariable=self.port_number, width=5)
+        self.port_entry.delete(0,tk.END)
+        self.port_entry.insert(tk.INSERT,1025)
+        self.port_entry.grid(row=2,column=3) 
 
-        self.results_button = tk.Button(self.frame, text="Results", command=self.show_results)
-        self.results_button.pack()
+        # self.run_button = tk.Button(self.frame, text="Run", command=self.run)
+        # self.run_button.pack()
+
+        # self.results_button = tk.Button(self.frame, text="Results", command=self.show_results)
+        # self.results_button.pack()
+
 
         self.plot_button = tk.Button(self.frame, text="Plot", command=self.plot_window)
-        self.plot_button.pack()
+        self.plot_button.grid(row=4) 
         
         self.close_button = tk.Button(self.frame, text="Exit Application", command=master.quit)
-        self.close_button.pack()
+        self.close_button.grid(row=5) 
 
         
-        
+
         
     def show_results(self):
         print("Showing results")
@@ -54,8 +79,54 @@ class TestBoardGUI:
     def run(self):
         print("Run")
 
+    # def stop_test(self):
+    #     self.test_counter == 0;
+
     def test(self):
-        print("Test Completed")
+#        self.test_counter += 1;
+        parser = argparse.ArgumentParser(description='Serenity test-board server.')
+#        args = parser.parse_args()
+        user_input = self.port_number.get()
+        print (user_input)
+
+
+        port = 1025
+        host = 'localhost'
+        addr = ( host, port )
+        
+        ### server socket ###
+        serversocket = socket( AF_INET, SOCK_STREAM )
+        serversocket.setsockopt( SOL_SOCKET, SO_REUSEADDR, 1 )
+        serversocket.bind( addr )
+        serversocket.listen( 10 )
+        
+        clients = [serversocket]
+        
+        buf = 1000000
+        tests = [] 
+
+        while True:
+            try:
+ #           print (self.test_counter)
+                print ("Server is listening for connections\n")
+                clientsocket, clientaddr = serversocket.accept()
+                clients.append( clientsocket )
+            #        thread.start_new_thread( handler, (clientsocket, clientaddr, buf, tests) )
+                th = thread.Thread(target=srv.handler, args=(clientsocket, clientaddr, buf, tests,)) 
+                th.start()
+                th.join()
+                #        time.sleep(2) 
+                
+                if(len(tests)>0) :
+                    print (tests[-1].getData())
+                    serversocket.close()
+                    print("Test Completed")
+
+            except KeyboardInterrupt: # Ctrl+C # FIXME: vraci "raise error(EBADF, 'Bad file descriptor')"
+                print ("Closing server socket...")
+                serversocket.close()
+
+                print("Test Completed")
 
 
     def plot_window(self):
