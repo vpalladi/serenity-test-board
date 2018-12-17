@@ -100,7 +100,7 @@ class TestBoardGUI:
         serversocket.bind( addr )
         serversocket.listen( 10 )
         
-        clients = [serversocket]
+        self.clients = [serversocket]
         
         buf = 1000000
         tests = [] 
@@ -110,16 +110,15 @@ class TestBoardGUI:
  #           print (self.test_counter)
                 print ("Server is listening for connections\n")
                 clientsocket, clientaddr = serversocket.accept()
-                clients.append( clientsocket )
+                self.clients.append( clientsocket )
             #        thread.start_new_thread( handler, (clientsocket, clientaddr, buf, tests) )
-                th = thread.Thread(target=srv.handler, args=(clientsocket, clientaddr, buf, tests,)) 
+                th = thread.Thread(target=srv.handler, args=(clientsocket, clientaddr, buf, tests,self.clients,)) 
                 th.start()
                 th.join()
                 #        time.sleep(2) 
                 
                 if(len(tests)>0) :
                     print (tests[-1].getData())
-                    serversocket.close()
                     print("Test Completed")
 
             except KeyboardInterrupt: # Ctrl+C # FIXME: vraci "raise error(EBADF, 'Bad file descriptor')"

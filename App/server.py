@@ -27,7 +27,7 @@ class cBoard :
         del dataTmp[-1]
         dataPktLen = (self.nPoints+1)
         voltages = len(dataTmp)/dataPktLen
-        for i in range(voltages) :
+        for i in range(int(voltages)) :
             start = (i*dataPktLen)
             stop  = start + dataPktLen
             self.data.append( dataTmp[start:stop] )
@@ -37,14 +37,14 @@ class cBoard :
 
 
 
-def handler( clientsocket, clientaddr, buf, tests ):
+def handler( clientsocket, clientaddr, buf, tests, clients ):
     
     board = cBoard()
     tests.append( board )
 
     print ("Accepted connection from: "), (clientaddr)
     while True:
-        rawData = clientsocket.recv( buf )
+        rawData = clientsocket.recv( buf ).decode('utf-8')
         rawData = rawData.replace(' ', '')
         if not rawData:
             break 
