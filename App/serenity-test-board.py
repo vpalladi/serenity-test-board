@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import tkinter as tk
 import tkinter.ttk as ttk
 import sys
+import copy
 
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 import threading as thread
@@ -35,15 +36,13 @@ class TestBoardGUI:
         master.title("HGCal Board Tester v0.1")
         master.geometry("400x300")
 
+        self.data = []
         
         self.frame = tk.Frame(master)
         self.frame.pack()
 
         self.label = tk.Label(self.frame, text="Run Board Tests")
         self.label.grid(row=0)
-
-
-
 
         self.port_number = tk.IntVar() 
         self.port_label = tk.Label(self.frame, text="Port").grid(row=2,column=2)
@@ -96,8 +95,9 @@ class TestBoardGUI:
         th.join()
                 
         if(len(tests)>0) :                    
-            print (tests[-1].getData())
+
             self.data = (tests[-1].getData())
+            print (self.data)
             print("Test Completed")
             self.plot_window()
 
@@ -158,10 +158,12 @@ class PlotWindow(tk.Toplevel):
         fig = Figure(figsize=(5, 4), dpi=100)
         t = np.arange(0, 3, .01)
         plt.tight_layout()
+
+        dataTmp = copy.deepcopy(data)
         
         for i in range(len(data)):
-            title = data[i][0]
-            data[i].pop(0)
+            title = dataTmp[i][0]
+            dataTmp[i].pop(0)
             row,col=3,4
             if title.find('SERVICES')!=-1 or title.find('SCALED')!=-1:
                 col=3
@@ -169,7 +171,7 @@ class PlotWindow(tk.Toplevel):
                 row=1
                 col=2
             subfig = fig.add_subplot(row,col,i+1)
-            subfig.plot( (data[i] ) )
+            subfig.plot( (dataTmp[i] ) )
             subfig.set_title(title)
             subfig.set_ylabel('Voltage')
 
