@@ -38,7 +38,7 @@ class cBoard :
 
 
 def handler( clientsocket, clientaddr, buf, tests, clients ):
-    
+
     board = cBoard()
     tests.append( board )
 
