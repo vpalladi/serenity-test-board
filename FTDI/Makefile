@@ -1,3 +1,5 @@
+CC := gcc
+
 LDFLAGS= -lmpsse -lm
 
 all: i2ctest #spiflash spiflashfast i2ceeprom ds1305 gpio bitbang
