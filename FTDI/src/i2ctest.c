@@ -66,16 +66,14 @@ int I2Cread( struct mpsse_context *i2c, uint32_t addr, uint32_t *data, uint32_t 
     if( GetAck(i2c) == ACK ) {
         int idata=0;
         for(; idata<ndata; idata++) {
+
+            if( idata<(ndata-1) ) // send Nack if is the lat read
+                SendNacks( i2c );
+
             rData = Read( i2c, 1 );
             data[idata] = *rData;
-            // printf( " Reading from addr 0x%x: 0x%x\n", addr&0xff, (*rData)&0xff );
-            if( idata<(ndata-1) )
                 SendAcks( i2c );
         }
-
-        SendNacks( i2c );
-        /* Read in one dummy byte, with a NACK */
-        //Read(i2c, 1);
 
     }
     else{
