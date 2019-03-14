@@ -15,3 +15,4 @@
 
 #include "consts.h"
 #include "I2CIO.h"
+#include "export.h"
