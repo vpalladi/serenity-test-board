@@ -10,9 +10,9 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-/* mpasse */
-#include <mpsse.h>
-
 #include "consts.h"
 #include "I2CIO.h"
 #include "export.h"
+
+/* mpasse */
+#include <mpsse.h>

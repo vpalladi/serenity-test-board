@@ -35,10 +35,6 @@ extern const uint32_t MUX_ANALOG_ADDR[4];
 extern const uint32_t MUX_EN;
 extern const uint32_t MUX_CH[8];
 
-extern const char *MUX0_LABLES[8];
+extern const char *MUX_LABLES[4][8];
 
-extern const char *MUX1_LABLES[8];
-
-extern const char *MUX2_LABLES[8];
-
-extern const char *MUX3_LABLES[8];
+extern const int GND_MUX[4][8];

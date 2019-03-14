@@ -35,7 +35,7 @@ int loopOverPP( struct mpsse_context *i2c, int nPoints, char *dataBuf ) {
     for( ; imux<4; imux++ ) {
         int ich=0;
         for( ; ich<8; ich++ ) {
-            int confRes = config( i2c, 0, imux, ich );
+            int confRes = configure( i2c, GND_MUX[imux][ich], imux, ich );
             if( confRes < 0 ) {
                 free(data);
                 return -1;
@@ -54,22 +54,8 @@ int loopOverPP( struct mpsse_context *i2c, int nPoints, char *dataBuf ) {
             }
             ADCrms = sqrt(ADCrms/nPoints);
 
-            if( imux==0 ) {
-                printf("%s\t", MUX0_LABLES[ich] );
-                sprintf( dataBuf, "%s%s,", dataBuf, MUX0_LABLES[ich] );
-            }
-            else if( imux==1 ) {
-                printf("%s\t", MUX1_LABLES[ich] );
-                sprintf( dataBuf, "%s%s,", dataBuf, MUX1_LABLES[ich] );
-            }
-            else if( imux==2 ) {
-                printf("%s\t", MUX2_LABLES[ich] );
-                sprintf( dataBuf, "%s%s,", dataBuf, MUX2_LABLES[ich] );
-            }
-            else if( imux==3 ) {
-                printf("%s\t", MUX3_LABLES[ich] );
-                sprintf( dataBuf, "%s%s,", dataBuf, MUX3_LABLES[ich] );
-            }
+            printf("%s\t", MUX_LABLES[imux][ich] );
+            sprintf( dataBuf, "%s%s,", dataBuf, MUX_LABLES[imux][ich] );
             printf( "MUX %d \t CH %d \t ADC_RD %f ( %f )\n", imux, ich, ADCmean, ADCrms );
 
             ipoint=0;
@@ -81,7 +67,7 @@ int loopOverPP( struct mpsse_context *i2c, int nPoints, char *dataBuf ) {
 
         }
     }
-
+    printf("%s\n", dataBuf);
     // free(data);
 
     return 0;
@@ -266,7 +252,7 @@ int main(int argc, char** argv) {
 
         Close(i2c);
         printf( "*** FTDI I2C CONNECTION CLOSE ***\n" );
-        return 0 ;
+        return 0;
 
     }
 
