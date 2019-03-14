@@ -35,7 +35,7 @@ int loopOverPP( struct mpsse_context *i2c, int nPoints, char *dataBuf ) {
     for( ; imux<4; imux++ ) {
         int ich=0;
         for( ; ich<8; ich++ ) {
-            int confRes = configure( i2c, GND_MUX[imux][ich], imux, ich );
+            int confRes = config( i2c, 0, imux, ich );
             if( confRes < 0 ) {
                 free(data);
                 return -1;
@@ -67,7 +67,7 @@ int loopOverPP( struct mpsse_context *i2c, int nPoints, char *dataBuf ) {
 
         }
     }
-    printf("%s\n", dataBuf);
+
     // free(data);
 
     return 0;
@@ -204,6 +204,7 @@ int main(int argc, char** argv) {
             printf("All voltages on Serenity (in Volt):\n");
             char buffer[1000000];
             loopOverPP( i2c, 8, buffer );
+            writeToFile(buffer, "data.txt");
 
             if( transmitFlag==1 ) {
                 int sockfd, portno, n;
@@ -252,7 +253,7 @@ int main(int argc, char** argv) {
 
         Close(i2c);
         printf( "*** FTDI I2C CONNECTION CLOSE ***\n" );
-        return 0;
+        return 0 ;
 
     }
 
