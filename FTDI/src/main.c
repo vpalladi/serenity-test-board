@@ -35,7 +35,7 @@ int loopOverPP( struct mpsse_context *i2c, int nPoints, char *dataBuf ) {
     for( ; imux<4; imux++ ) {
         int ich=0;
         for( ; ich<8; ich++ ) {
-            int confRes = config( i2c, 0, imux, ich );
+            int confRes = configure( i2c, 0, imux, ich );
             if( confRes < 0 ) {
                 free(data);
                 return -1;
