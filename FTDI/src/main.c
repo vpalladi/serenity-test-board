@@ -11,7 +11,6 @@ float readADC( struct mpsse_context *i2c ) {
 
     uint32_t *data = (uint32_t*) malloc(2);
     I2Cread( i2c, ADC_ADDR, data, 2 );
-
     uint32_t result = (data[0] & 0xff) << 8;
     result = result | (data[1] & 0xff);
 
@@ -32,12 +31,10 @@ int loopOverPP( struct mpsse_context *i2c, int nPoints, char *dataBuf ) {
     float *data = (float*)malloc(nPoints);
 
     sprintf( dataBuf, "%d,", nPoints );
-
+    printf("%s\n", "Starting loop over muxes...");
     for( ; imux<4; imux++ ) {
-
         int ich=0;
         for( ; ich<8; ich++ ) {
-
             int confRes = config( i2c, 0, imux, ich );
             if( confRes < 0 ) {
                 free(data);
@@ -220,7 +217,7 @@ int main(int argc, char** argv) {
         if( loopFlag == 1 ) {
             printf("All voltages on Serenity (in Volt):\n");
             char buffer[1000000];
-            loopOverPP( i2c, 10, buffer );
+            loopOverPP( i2c, 8, buffer );
 
             if( transmitFlag==1 ) {
                 int sockfd, portno, n;

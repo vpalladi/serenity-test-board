@@ -38,16 +38,14 @@ int I2Cwrite( struct mpsse_context *i2c, uint32_t addr, uint32_t data) {
 int I2Cread( struct mpsse_context *i2c, uint32_t addr, uint32_t *data, uint32_t ndata ) {
 
     char* rData = NULL;
-
-    Start( i2c );
-
+    int ret = Start( i2c );
     char rAddr = (addr|I2C_RD);
-    Write( i2c, &rAddr, 1 );            // read address and
+    Write( i2c, &rAddr, 1 );
     if( GetAck(i2c) == ACK ) {
         int idata=0;
         for(; idata<ndata; idata++) {
 
-            if( idata<(ndata-1) ) // send Nack if is the lat read
+            if( idata == (ndata-1) ) // send Nack if is the lat read
                 SendNacks( i2c );
 
             rData = Read( i2c, 1 );
