@@ -1,73 +1,44 @@
 #pragma once
 
-const uint32_t I2C_WR = 0x00;
-const uint32_t I2C_RD = 0x01;
+#include <stdlib.h>
+#include <netinet/in.h>
+
+extern const uint32_t I2C_WR;
+extern const uint32_t I2C_RD;
 
 /* I2C MUX */
-const uint32_t I2C_MUX_ADDR = 0xE0;
+extern const uint32_t I2C_MUX_ADDR;
 
-const uint32_t I2C_MUX_CH0 = 0x01;
-const uint32_t I2C_MUX_CH1 = 0x02;
-const uint32_t I2C_MUX_CH2 = 0x04;
-const uint32_t I2C_MUX_CH3 = 0x08;
-const uint32_t I2C_MUX_CH4 = 0x10;
-const uint32_t I2C_MUX_CH5 = 0x20;
-const uint32_t I2C_MUX_CH6 = 0x40;
-const uint32_t I2C_MUX_CH7 = 0x80;
+extern const uint32_t I2C_MUX_CH0;
+extern const uint32_t I2C_MUX_CH1;
+extern const uint32_t I2C_MUX_CH2;
+extern const uint32_t I2C_MUX_CH3;
+extern const uint32_t I2C_MUX_CH4;
+extern const uint32_t I2C_MUX_CH5;
+extern const uint32_t I2C_MUX_CH6;
+extern const uint32_t I2C_MUX_CH7;
 
 /* ADC */
-const uint32_t ADC_ADDR  = 0x60;
+extern const uint32_t ADC_ADDR;
 
-const float ADC_REF_V = 4.096; // adc reference in volt
+extern const float ADC_REF_V; // adc reference in volt
 
 /* analog MUXs */
 
-const uint32_t MUX_GND_I2C_LINE = 0x01; // on I2C line 0 (same as I2C_MUX_CH0)
-const uint32_t MUX_GND_ADDR = 0x90; // on I2C line 0
+extern const uint32_t MUX_GND_I2C_LINE; // on I2C line 0 (same as I2C_MUX_CH0)
+extern const uint32_t MUX_GND_ADDR; // on I2C line 0
 
-const uint32_t MUX_ANALOG_I2C_LINE = 0x02; // on I2C line 1 (same as I2C_MUX_CH1)
-const uint32_t MUX_ANALOG_ADDR[4] = { 0x90, 0x92, 0x94, 0x96 };
+extern const uint32_t MUX_ANALOG_I2C_LINE; // on I2C line 1 (same as I2C_MUX_CH1)
+extern const uint32_t MUX_ANALOG_ADDR[4];
 
 /* common to analog mux */
-const uint32_t MUX_EN  = 0x08;
-const uint32_t MUX_CH[8] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 };
+extern const uint32_t MUX_EN;
+extern const uint32_t MUX_CH[8];
 
-const char *MUX0_LABLES[8] = { "X1_POWER_MGTVCCAUX_N        ",
-                               "X1_POWER_MGTAVTT_S          ",
-                               "X1_POWER_MGTAVCC_S          ",
-                               "X1_POWER_MGTAVCC_N          ",
-                               "X1_POWER_MGTAVTT_N          ",
-                               "X1_POWER_VCCAUX             ",
-                               "X1_POWER_+1.8V              ",
-                               "X1_POWER_+3.3V              "
-};
+extern const char *MUX0_LABLES[8];
 
-const char *MUX1_LABLES[8] = { "SERVICES+1.5V               ",
-                               "SERVICES+1.0V               ",
-                               "SERVICES+1.8V               ",
-                               "SERVICES+3.3V               ",
-                               "5V_SCALED                   ",
-                               "X1_POWER_VCCINT             ",
-                               "X1_POWER_MGTVCCAUC_S        ",
-                               "X1_POWER_+1.8V_ANALOGUE     "
-};
+extern const char *MUX1_LABLES[8];
 
-const char *MUX2_LABLES[8] = { "X0_POWER_MGTVCCAUC_N        ",
-                               "X0_POWER_+1.8V_ANALOGUE     ",
-                               "X0_POWER_MGTVCCAUC_S        ",
-                               "X0_POWER_VCCINT             ",
-                               "X0_POWER_+3.3V              ",
-                               "ARTIX_MGTAVTT               ",
-                               "ARTIX_MGTAVCC               ",
-                               "SERVICES_POWER_STANDBY_+3.3V"
-};
+extern const char *MUX2_LABLES[8];
 
-const char *MUX3_LABLES[8] = { "Not Used                    ",
-                               "+12_SCALED                  ",
-                               "X0_POWER_+1.8V              ",
-                               "X0_POWER_VCCAUX             ",
-                               "X0_POWER_MGTAVTT_N          ",
-                               "X0_POWER_MGTAVCC_N          ",
-                               "X0_POWER_MGTAVCC_S          ",
-                               "X0_POWER_MGTAVTT_S          "
-};
+extern const char *MUX3_LABLES[8];
