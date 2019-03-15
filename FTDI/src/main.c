@@ -31,7 +31,7 @@ int loopOverPP( struct mpsse_context *i2c, int nPoints, char *dataBuf ) {
     float *data = (float*)malloc(nPoints);
 
     sprintf( dataBuf, "%d,", nPoints );
-    printf("%s\n", "Starting loop over muxes...");
+    //printf("%s\n", "Starting loop over muxes...");
     for( ; imux<4; imux++ ) {
         int ich=0;
         for( ; ich<8; ich++ ) {
@@ -204,7 +204,7 @@ int main(int argc, char** argv) {
             printf("All voltages on Serenity (in Volt):\n");
             char buffer[1000000];
             loopOverPP( i2c, 8, buffer );
-            writeToFile(buffer, "data.txt");
+            writeToFile(buffer);
 
             if( transmitFlag==1 ) {
                 int sockfd, portno, n;
