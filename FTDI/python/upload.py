@@ -2,6 +2,9 @@ import subprocess
 import pandas as pd
 import numpy as np
 from glob import glob
+import sqlalchemy
+import re
+import datetime
 
 
 class Data:
@@ -21,11 +24,27 @@ class Data:
     def __openFile(self, filename):
         with open(filename) as f:
             datastring = f.read()
+        self.timestring = re.match(
+            '[0-9]*',
+            re.search('[0-9]*\.dat', filename).group()).group()
+        self.timestamp = datetime.datetime.strptime(
+            self.timestring, "%Y%m%d%H%M%S")
         return datastring
 
     def getDataFrame(self):
-        self.df = pd.DataFrame(self.data[1:], columns=self.data[0])
+        self.df = pd.DataFrame(
+            self.data[1:], columns=self.data[0]).astype(float)
         return self.df
+
+    def uploadDataToDB(self, dbname):
+        if not hasattr(self, 'df'):
+            self.getDataFrame()
+        engine = sqlalchemy.create_engine(
+            'sqlite:///'+dbname, echo=True)
+        try:
+            self.df.to_sql(self.timestring, con=engine)
+        except ValueError:
+            pass
 
 
 def buildCCode(clean=False):
@@ -34,19 +53,28 @@ def buildCCode(clean=False):
     subprocess.call(['make'])
 
 
-def getData():
-    files = glob('data/*.dat')
-    data = Data(files[0])
-    print(data.getDataFrame())
+def listTables(dbname):
+    engine = sqlalchemy.create_engine('sqlite:///'+dbname, echo=True)
+    return engine.table_names()
+
+
+def dropTable(dbname, table):
+    engine = sqlalchemy.create_engine('sqlite:///'+dbname, echo=True)
+    engine.execute("DROP TABLE IF EXISTS '%s'" % table)
 
 
 def main():
     buildCCode(clean=True)
-    # TODO: Make this command dynamic
+    # # TODO: Make this command dynamic
     subprocess.call(['sudo',
                      'LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH',
                      '/home/dmonk/serenity-test-board/FTDI/bin/main', '-l'])
-    getData()
+    files = glob('data/*.dat')
+    data = Data(files[0])
+    data.uploadDataToDB('data/db.sqlite')
+    # for i in listTables('data/db.sqlite'):
+    #     dropTable('data/db.sqlite', i)
+    print(listTables('data/db.sqlite'))
 
 
 if __name__ == '__main__':
