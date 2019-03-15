@@ -11,7 +11,7 @@ class Board:
 
     def __uploadToBoardTable(self, df, dbname):
         engine = sqlalchemy.create_engine(
-            'sqlite:///'+dbname, echo=True)
+            'sqlite:///'+dbname, echo=False)
         self.df.to_sql('board_' + self.ID,
                        con=engine, if_exists='append',
                        index=False)
@@ -34,6 +34,6 @@ class Board:
 
     def listMeasurements(self):
         engine = sqlalchemy.create_engine(
-            'sqlite:///data/db.sqlite', echo=True)
+            'sqlite:///data/db.sqlite', echo=False)
         df = pd.read_sql("SELECT * FROM board_%s" % self.ID, con=engine)
         print(df)

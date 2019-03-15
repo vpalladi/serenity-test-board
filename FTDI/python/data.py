@@ -40,7 +40,7 @@ class Data:
         if not hasattr(self, 'df'):
             self.getDataFrame()
         engine = sqlalchemy.create_engine(
-            'sqlite:///'+dbname, echo=True)
+            'sqlite:///'+dbname, echo=False)
         try:
             self.df.to_sql(self.board_ID + '_test_' + self.timestring,
                            con=engine, if_exists='replace',
