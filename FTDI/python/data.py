@@ -1,14 +1,13 @@
-import subprocess
 import pandas as pd
 import numpy as np
-from glob import glob
 import sqlalchemy
 import re
 import datetime
 
 
 class Data:
-    def __init__(self, filename):
+    def __init__(self, board_ID, filename):
+        self.board_ID = board_ID
         data = self.__openFile(filename).strip().split(',')
         data = [i for i in data if i]
         try:
@@ -42,40 +41,7 @@ class Data:
         engine = sqlalchemy.create_engine(
             'sqlite:///'+dbname, echo=True)
         try:
-            self.df.to_sql(self.timestring, con=engine)
+            self.df.to_sql(self.board_ID + '_' + self.timestring,
+                           con=engine, if_exists='replace')
         except ValueError:
             pass
-
-
-def buildCCode(clean=False):
-    if clean:
-        subprocess.call(['make', 'clean'])
-    subprocess.call(['make'])
-
-
-def listTables(dbname):
-    engine = sqlalchemy.create_engine('sqlite:///'+dbname, echo=True)
-    return engine.table_names()
-
-
-def dropTable(dbname, table):
-    engine = sqlalchemy.create_engine('sqlite:///'+dbname, echo=True)
-    engine.execute("DROP TABLE IF EXISTS '%s'" % table)
-
-
-def main():
-    buildCCode(clean=True)
-    # # TODO: Make this command dynamic
-    subprocess.call(['sudo',
-                     'LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH',
-                     '/home/dmonk/serenity-test-board/FTDI/bin/main', '-l'])
-    files = glob('data/*.dat')
-    data = Data(files[0])
-    data.uploadDataToDB('data/db.sqlite')
-    # for i in listTables('data/db.sqlite'):
-    #     dropTable('data/db.sqlite', i)
-    print(listTables('data/db.sqlite'))
-
-
-if __name__ == '__main__':
-    main()
