@@ -32,7 +32,8 @@ class Data:
 
     def getDataFrame(self):
         self.df = pd.DataFrame(
-            self.data[1:], columns=self.data[0]).astype(float)
+            self.data[1:],
+            columns=[i.strip() for i in self.data[0]]).astype(float)
         return self.df
 
     def uploadDataToDB(self, dbname):
@@ -41,7 +42,8 @@ class Data:
         engine = sqlalchemy.create_engine(
             'sqlite:///'+dbname, echo=True)
         try:
-            self.df.to_sql(self.board_ID + '_' + self.timestring,
-                           con=engine, if_exists='replace')
+            self.df.to_sql(self.board_ID + '_test_' + self.timestring,
+                           con=engine, if_exists='replace',
+                           index_label='index')
         except ValueError:
             pass
